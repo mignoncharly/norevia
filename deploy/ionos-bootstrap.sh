@@ -254,6 +254,7 @@ set -a
 # shellcheck disable=SC1091
 source /etc/norevia/api.env
 set +a
+export HOME=/var/lib/norevia
 runuser -u norevia --preserve-environment -- /bin/bash -c \
   "cd '${APP_ROOT}/apps/api' && '${APP_ROOT}/.venv/bin/alembic' upgrade head && '${APP_ROOT}/.venv/bin/python' -m app.services.seed_catalog"
 
