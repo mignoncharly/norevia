@@ -257,8 +257,11 @@ set +a
 export HOME=/var/lib/norevia
 runuser -u norevia --preserve-environment -- /bin/bash -c \
   "cd '${APP_ROOT}/apps/api' && '${APP_ROOT}/.venv/bin/alembic' upgrade head && '${APP_ROOT}/.venv/bin/python' -m app.services.seed_catalog"
+export HOME=/root
 
-systemctl enable --now norevia-api.service norevia-pipeline.timer norevia-backup.timer
+systemctl enable norevia-api.service
+systemctl restart norevia-api.service
+systemctl enable --now norevia-pipeline.timer norevia-backup.timer
 
 cat > /etc/nginx/sites-available/norevia <<EOF
 limit_req_zone \$binary_remote_addr zone=norevia_api:10m rate=20r/s;
@@ -324,7 +327,16 @@ ln -sfn /etc/nginx/sites-available/norevia /etc/nginx/sites-enabled/norevia
 nginx -t
 systemctl reload nginx
 
-curl --fail --silent --show-error "http://127.0.0.1:${API_PORT}/health/ready" >/dev/null
+api_ready=false
+for _ in {1..30}; do
+  if curl --fail --silent "http://127.0.0.1:${API_PORT}/health/ready" >/dev/null 2>&1; then
+    api_ready=true
+    break
+  fi
+  sleep 1
+done
+[[ "${api_ready}" == true ]] || { systemctl status norevia-api.service --no-pager; exit 70; }
+
 certbot --nginx -d "${DOMAIN}" --redirect --non-interactive --agree-tos \
   --register-unsafely-without-email --keep-until-expiring
 nginx -t
