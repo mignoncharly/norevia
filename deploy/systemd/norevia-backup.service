@@ -1,0 +1,11 @@
+[Unit]
+Description=Back up Norevia PostgreSQL and raw source archive
+After=postgresql.service
+[Service]
+Type=oneshot
+User=norevia
+Group=norevia
+EnvironmentFile=/etc/norevia/api.env
+ExecStart=/opt/norevia/current/deploy/scripts/backup.sh
+Nice=10
+IOSchedulingClass=best-effort

@@ -1,0 +1,25 @@
+[Unit]
+Description=Norevia FastAPI service
+After=network-online.target postgresql.service redis-server.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=norevia
+Group=norevia
+WorkingDirectory=/opt/norevia/current/apps/api
+EnvironmentFile=/etc/norevia/api.env
+ExecStart=/opt/norevia/venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8000 --workers 2 --proxy-headers --forwarded-allow-ips=127.0.0.1
+Restart=always
+RestartSec=5
+TimeoutStopSec=30
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/norevia /var/log/norevia
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

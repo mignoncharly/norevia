@@ -1,0 +1,17 @@
+[Unit]
+Description=Norevia official-data update pipeline
+After=network-online.target postgresql.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=norevia
+Group=norevia
+WorkingDirectory=/opt/norevia/current
+EnvironmentFile=/etc/norevia/api.env
+ExecStart=/opt/norevia/current/deploy/scripts/update-data.sh
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/norevia/raw /var/log/norevia
