@@ -28,7 +28,7 @@ def upgrade() -> None:
     op.execute(
         "CREATE TYPE quality_status AS ENUM ('VALIDATED','PROVISIONAL','ESTIMATED','STALE','REJECTED')"
     )
-    op.execute("""
+    for statement in """
     CREATE TABLE categories (
       id uuid PRIMARY KEY, code varchar(80) NOT NULL UNIQUE,
       parent_id uuid REFERENCES categories(id), sort_order integer NOT NULL DEFAULT 0
@@ -87,7 +87,9 @@ def upgrade() -> None:
       id uuid PRIMARY KEY, user_id varchar(200), request_payload jsonb NOT NULL, result_payload jsonb NOT NULL,
       methodology_version varchar(60) NOT NULL, created_at timestamptz NOT NULL, expires_at timestamptz
     );
-    """)
+    """.split(";"):
+        if statement.strip():
+            op.execute(statement)
 
 
 def downgrade() -> None:
