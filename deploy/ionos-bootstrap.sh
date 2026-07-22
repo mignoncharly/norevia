@@ -298,25 +298,22 @@ server {
 
     location = /sw.js {
         expires -1;
-        add_header Cache-Control "no-cache, no-store, must-revalidate";
         try_files \$uri =404;
     }
 
     location = /manifest.webmanifest {
         expires -1;
-        add_header Cache-Control "no-cache";
         try_files \$uri =404;
     }
 
     location /assets/ {
         expires 1y;
-        add_header Cache-Control "public, immutable";
         try_files \$uri =404;
     }
 
     location / {
         try_files \$uri \$uri/ /index.html;
-        add_header Cache-Control "no-cache";
+        expires -1;
     }
 
     access_log /var/log/nginx/norevia.access.log;
